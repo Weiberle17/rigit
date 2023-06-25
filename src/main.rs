@@ -1,13 +1,25 @@
-use std::process::{Command, Output};
+use std::{
+  env,
+  path::PathBuf,
+  process,
+};
 
-use rigit::check_output;
+use rigit::{status, ParentDir};
 
 fn main() {
-  let output: Output = Command::new("git").arg("status").output().unwrap();
+  let args: Vec<String> = env::args().collect();
 
-  assert!(output.status.success());
+  let parent_dir = ParentDir::build(&args).unwrap_or_else(|err| {
+    eprintln!("Problem parsing arguments: {err}");
+    process::exit(1);
+  });
 
-  let output = String::from_utf8_lossy(&output.stdout);
+  dbg!(&parent_dir);
 
-  println!("{:?}", check_output(&output));
+  for dir in parent_dir.child_directories {
+    let dir = format!("{}{}", parent_dir.path, dir);
+    if PathBuf::from(&dir).is_dir() {
+      dbg!(status(dir));
+    }
+  }
 }
