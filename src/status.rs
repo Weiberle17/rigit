@@ -137,8 +137,3 @@ pub fn printing(parent_dir: ParentDir) {
     }
   }
 }
-
-#[cfg(test)]
-mod tests {
-  use super::*;
-}

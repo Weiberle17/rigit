@@ -1,6 +1,7 @@
-use std::{env, process};
+mod status;
 
-use rigit::{ParentDir, printing};
+use status::{printing, ParentDir};
+use std::{env, process};
 
 fn main() {
   let args: Vec<String> = env::args().collect();
