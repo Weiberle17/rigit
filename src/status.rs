@@ -2,9 +2,8 @@ use colored::Colorize;
 use std::{collections::HashMap, io::Error, path::PathBuf, process::Command};
 
 #[derive(Debug)]
-pub struct ParentDir {
+pub struct StatusParentDir {
   pub path: String,
-  pub command: String,
   pub status: Vec<Status>,
 }
 
@@ -20,13 +19,9 @@ pub struct Dir {
   pub path: String,
 }
 
-impl ParentDir {
-  pub fn build(args: &[String]) -> Result<ParentDir, &'static str> {
-    if args.len() != 3 {
-      return Err("Not the right amount of arguments, expected 2");
-    }
-    let command = args[1].to_owned();
-    let path = args[2].to_owned();
+impl StatusParentDir {
+  pub fn build(arg: &str) -> Result<StatusParentDir, &'static str> {
+    let path = arg.to_owned();
     let child_directories = get_child_directories(&path).unwrap();
     let mut status: Vec<Status> = Vec::new();
     for dir in child_directories {
@@ -44,15 +39,29 @@ impl ParentDir {
       Err(_) => 1,
     });
 
-    Ok(ParentDir {
-      path,
-      command,
-      status,
-    })
+    Ok(StatusParentDir { path, status })
+  }
+
+  pub fn printing(self: &Self) {
+    for status in &self.status {
+      match &status.status {
+        Ok(r) => {
+          println!("{:?}: {}", status.directory.name, " ".red());
+          for line in r.lines() {
+            println!("{:?}", line);
+          }
+          println!("");
+        }
+        Err(_) => {
+          println!("{:?}: {}", status.directory.name, " ".green());
+          println!("");
+        }
+      }
+    }
   }
 }
 
-pub fn get_child_directories(parent_path: &str) -> Result<HashMap<String, String>, Error> {
+fn get_child_directories(parent_path: &str) -> Result<HashMap<String, String>, Error> {
   let child_directories = Command::new("ls")
     .current_dir(parent_path)
     .output()
@@ -72,7 +81,7 @@ pub fn get_child_directories(parent_path: &str) -> Result<HashMap<String, String
   Ok(result)
 }
 
-pub fn check_repo(dir: &str) -> bool {
+fn check_repo(dir: &str) -> bool {
   let dir = format!("{}/.git", dir);
   if PathBuf::from(&dir).is_dir() {
     true
@@ -81,7 +90,7 @@ pub fn check_repo(dir: &str) -> bool {
   }
 }
 
-pub fn get_status(dir: &str) -> Result<String, String> {
+fn get_status(dir: &str) -> Result<String, String> {
   let dir = Command::new("git")
     .arg("status")
     .current_dir(dir)
@@ -96,7 +105,7 @@ pub fn get_status(dir: &str) -> Result<String, String> {
   };
 }
 
-pub fn check_status<'a>(contents: &'a str) -> Result<String, String> {
+fn check_status<'a>(contents: &'a str) -> Result<String, String> {
   let mut results = Vec::new();
 
   if !contents.contains("up to date") {
@@ -118,22 +127,4 @@ pub fn check_status<'a>(contents: &'a str) -> Result<String, String> {
   }
 
   Ok(lines)
-}
-
-pub fn printing(parent_dir: ParentDir) {
-  for status in parent_dir.status {
-    match status.status {
-      Ok(r) => {
-        println!("{:?}: {}", status.directory.name, " ".red());
-        for line in r.lines() {
-          println!("{:?}", line);
-        }
-        println!("");
-      }
-      Err(_) => {
-        println!("{:?}: {}", status.directory.name, " ".green());
-        println!("");
-      }
-    }
-  }
 }
