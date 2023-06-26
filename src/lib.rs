@@ -1,5 +1,6 @@
-mod status;
+pub mod status;
 
+use status::StatusParentDir;
 use std::env;
 
 pub struct Args {
@@ -18,9 +19,11 @@ impl Args {
   }
 }
 
-// if args[1] == "status" {
-//   let parent_dir = StatusParentDir::build(&args[2]).unwrap_or_else(|err| {
-//     eprintln!("Problem parsing arguments: {err}");
-//     process::exit(1);
-//   });
-// }
+pub fn run_requested_command(args: &Args) {
+  if args.command == "status" {
+    let parent_dir = StatusParentDir::build(&args.path);
+    parent_dir.printing();
+  } else {
+    panic!("Usable commands are: 'status', you used {}", args.command);
+  }
+}
