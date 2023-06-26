@@ -20,7 +20,7 @@ pub struct Dir {
 }
 
 impl StatusParentDir {
-  pub fn build(arg: &str) -> Result<StatusParentDir, &'static str> {
+  pub fn build(arg: &str) -> StatusParentDir {
     let path = arg.to_owned();
     let child_directories = get_child_directories(&path).unwrap();
     let mut status: Vec<Status> = Vec::new();
