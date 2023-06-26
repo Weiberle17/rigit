@@ -1,15 +1,17 @@
 mod status;
 
-use status::{printing, ParentDir};
-use std::{env, process};
+use rigit::Args;
+use status::StatusParentDir;
+use std::process;
 
 fn main() {
-  let args: Vec<String> = env::args().collect();
+  let args: Args = Args::parse_args();
 
-  let parent_dir = ParentDir::build(&args).unwrap_or_else(|err| {
-    eprintln!("Problem parsing arguments: {err}");
-    process::exit(1);
-  });
-
-  printing(parent_dir);
+  if args.command == "status" {
+    let parent_dir = StatusParentDir::build(&args.path).unwrap_or_else(|err| {
+      eprintln!("Problem parsing arguments: {err}");
+      process::exit(1);
+    });
+    parent_dir.printing();
+  }
 }
