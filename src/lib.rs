@@ -1,3 +1,4 @@
+pub mod pull;
 pub mod status;
 
 use status::StatusParentDir;
