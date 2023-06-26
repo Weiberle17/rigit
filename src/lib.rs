@@ -10,6 +10,12 @@ pub struct Args {
   pub path: String,
 }
 
+#[derive(Debug)]
+pub struct Dir {
+  pub name: String,
+  pub path: String,
+}
+
 impl Args {
   pub fn parse_args() -> Result<Args, String> {
     let args: Vec<String> = env::args().collect();

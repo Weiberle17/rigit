@@ -1,3 +1,4 @@
+use crate::Dir;
 use colored::Colorize;
 use std::{collections::HashMap, io::Error, path::PathBuf, process::Command};
 
@@ -11,12 +12,6 @@ pub struct StatusParentDir {
 pub struct Status {
   pub directory: Dir,
   pub status: Result<String, String>,
-}
-
-#[derive(Debug)]
-pub struct Dir {
-  pub name: String,
-  pub path: String,
 }
 
 impl StatusParentDir {
