@@ -39,21 +39,22 @@ impl StatusParentDir {
       Err(_) => 1,
     });
 
-    Ok(StatusParentDir { path, status })
+    StatusParentDir { path, status }
   }
 
   pub fn printing(self: &Self) {
+    println!("");
     for status in &self.status {
       match &status.status {
         Ok(r) => {
-          println!("{:?}: {}", status.directory.name, " ".red());
+          println!("{}: {}", status.directory.name, " ".red());
           for line in r.lines() {
-            println!("{:?}", line);
+            println!("  {}", line);
           }
           println!("");
         }
         Err(_) => {
-          println!("{:?}: {}", status.directory.name, " ".green());
+          println!("{}: {}", status.directory.name, " ".green());
           println!("");
         }
       }
