@@ -1,6 +1,6 @@
-use std::{env, path::PathBuf, process};
+use std::{env, process};
 
-use rigit::{get_status, ParentDir};
+use rigit::{ParentDir, printing};
 
 fn main() {
   let args: Vec<String> = env::args().collect();
@@ -10,8 +10,5 @@ fn main() {
     process::exit(1);
   });
 
-  for dir in parent_dir.child_directories {
-    println!("{}", dir.0);
-    println!("{:?}", get_status(&dir.1));
-  }
+  printing(parent_dir);
 }
