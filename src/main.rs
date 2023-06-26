@@ -1,5 +1,3 @@
-pub mod status;
-
 use rigit::{run_requested_command, Args};
 
 fn main() {
