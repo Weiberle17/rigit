@@ -6,6 +6,6 @@ use clap::Parser;
 #[command(version)]
 #[command(about = "Cli-tool which lets you perform a git action on multiple repositories", long_about = None)]
 pub struct Cli {
-  command: String,
-  path: String,
+  pub command: String,
+  pub path: String,
 }
