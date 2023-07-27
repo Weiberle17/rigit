@@ -8,5 +8,6 @@ pub fn run_status(repos: Repos) {
 
 // TODO: implement get_status function
 pub fn get_status(repos: Repos) -> Result<String, String> {
-  let mut results = Vec::new();
+  let mut results: Vec<String> = Vec::new();
+  Ok("Whatever".to_string())
 }
