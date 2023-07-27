@@ -1,7 +1,10 @@
 [package]
 name = "rigit"
-version = "0.1.1-alpha"
+authors = ["Weiberle17"]
+version = "0.1.2"
+description = "Cli-tool which lets you perform a git action on multiple repositories."
 edition = "2021"
+repository = "https://github.com/Weiberle17/rigit"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
