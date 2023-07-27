@@ -5,7 +5,7 @@ mod repos;
 use clap::Parser;
 use cli::Cli;
 use repos::Repos;
-use status::get_status;
+use status::run_status;
 
 fn main() {
   let args = Cli::parse();
