@@ -10,6 +10,7 @@ pub struct Cli {
   pub command: Command,
 }
 
+// FIX: check path variable for availability
 #[derive(Subcommand, Debug)]
 pub enum Command {
   /// Run git status on all repos in the following directory
