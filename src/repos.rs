@@ -20,10 +20,6 @@ pub struct Dir {
 }
 
 impl Repos {
-  pub fn new() -> Self {
-    Repos { repos: Vec::new() }
-  }
-
   pub fn get_repos(path: String) -> Result<Repos, PathError> {
     let path = Path::new(&path);
     let child_directories = Command::new("ls")
