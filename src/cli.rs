@@ -18,4 +18,8 @@ pub enum Command {
     #[clap(short, long)]
     verbose: bool,
   },
+  /// Run git fetch on all repos in the following directory
+  Fetch {
+    path: String,
+  }
 }

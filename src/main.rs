@@ -1,4 +1,5 @@
 mod cli;
+mod fetch;
 mod repos;
 mod status;
 
@@ -15,5 +16,6 @@ fn main() {
       let repos = Repos::get_repos(path).unwrap();
       run_status(repos, verbose);
     }
+    Command::Fetch { path } => {}
   }
 }
