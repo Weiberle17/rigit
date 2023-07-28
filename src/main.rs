@@ -5,6 +5,7 @@ mod status;
 
 use clap::Parser;
 use cli::{Cli, Command};
+use fetch::run_fetch;
 use repos::Repos;
 use status::run_status;
 
@@ -16,6 +17,9 @@ fn main() {
       let repos = Repos::get_repos(path).unwrap();
       run_status(repos, verbose);
     }
-    Command::Fetch { path } => {}
+    Command::Fetch { path } => {
+      let repos = Repos::get_repos(path).unwrap();
+      run_fetch(repos);
+    }
   }
 }
