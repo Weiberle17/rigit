@@ -1,5 +1,7 @@
 use std::process::Command;
 
+use colored::Colorize;
+
 use crate::repos::{Dir, Repos};
 
 #[derive(Debug)]
@@ -14,17 +16,41 @@ pub struct Statuses {
 #[derive(Debug)]
 pub struct Status {
   pub directory: Dir,
-  pub status: Result<String, String>,
-}
-
-// TODO: implement proper printing of status
-impl Statuses {
-  pub fn print(&self) {}
+  pub status: Result<Vec<String>, String>,
 }
 
 pub fn run_status(repos: Repos, verbose: bool) {
   let status = get_status(repos, verbose).unwrap();
-  dbg!(status);
+  // dbg!(status);
+  status.print(verbose);
+}
+
+impl Statuses {
+  pub fn print(&self, verbose: bool) {
+    println!("");
+    for status in &self.statuses {
+      match &status.status {
+        Ok(r) => {
+          println!("{}: {}", status.directory.name, " ".red());
+          if verbose {
+            let output = r[0].split("\n");
+            for line in output {
+              println!("  {}", line);
+            }
+          } else {
+            for line in r {
+              println!("  {}", line);
+            }
+          }
+          println!("");
+        }
+        Err(_) => {
+          println!("{}: {}", status.directory.name, " ".green());
+          println!("");
+        }
+      };
+    }
+  }
 }
 
 pub fn get_status(repos: Repos, verbose: bool) -> Result<Statuses, StatusError> {
