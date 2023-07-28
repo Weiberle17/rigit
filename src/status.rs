@@ -39,37 +39,38 @@ pub fn get_status(repos: Repos, verbose: bool) -> Result<Statuses, StatusError> 
       })?;
 
     let status_output = String::from_utf8_lossy(&status.stdout).to_string();
-    let status: Result<String, String>;
-    match &status_output {
-      x if x.contains("up to date") => {
-        if verbose {
-          status = Ok(status_output);
-        } else {
-          status =
-            Ok("Local repository is not synchronized with the remote repository.".to_string())
-        }
+    let mut ok_vec: Vec<String> = Vec::new();
+    let status: Result<Vec<String>, String>;
+    if !status_output.contains("up to date") {
+      if verbose {
+        ok_vec.push(status_output.clone());
+      } else {
+        ok_vec.push("Local repository is not synchronized with the remote repository.".to_string());
       }
-      x if x.contains("modified") => {
-        if verbose {
-          status = Ok(status_output);
-        } else {
-          status = Ok("You have uncommited changes in your local repository.".to_string())
-        }
+    }
+    if status_output.contains("modified") {
+      if verbose {
+        ok_vec.push(status_output.clone());
+      } else {
+        ok_vec.push("You have uncommited changes in your local repository.".to_string());
       }
-      x if x.contains("untracked") => {
-        if verbose {
-          status = Ok(status_output);
-        } else {
-          status = Ok("You have untracked files in your repository.".to_string())
-        }
+    }
+    if status_output.contains("untracked") {
+      if verbose {
+        ok_vec.push(status_output.clone());
+      } else {
+        ok_vec.push("You have untracked files in your repository.".to_string());
       }
-      _ => {
-        if verbose {
-          status = Err(status_output);
-        } else {
-          status = Err("The repository is clean".to_string());
-        }
+    }
+
+    if ok_vec.is_empty() {
+      if verbose {
+        status = Err(status_output);
+      } else {
+        status = Err("The repository is clean".to_string());
       }
+    } else {
+      status = Ok(ok_vec);
     }
 
     statuses.push(Status {
@@ -77,5 +78,11 @@ pub fn get_status(repos: Repos, verbose: bool) -> Result<Statuses, StatusError> 
       status,
     });
   }
+
+  statuses.sort_by_key(|item| match item.status {
+    Ok(_) => 0,
+    Err(_) => 1,
+  });
+
   Ok(Statuses { statuses })
 }
