@@ -10,7 +10,7 @@ pub struct PathError {
 
 #[derive(Debug)]
 pub struct Repos {
-  repos: Vec<Dir>,
+  pub repos: Vec<Dir>,
 }
 
 #[derive(Debug)]
