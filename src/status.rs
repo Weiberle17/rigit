@@ -1,50 +1,46 @@
-use crate::Dir;
+use std::process::Command;
+
 use colored::Colorize;
-use std::{collections::HashMap, io::Error, path::PathBuf, process::Command};
+
+use crate::repos::{Dir, Repos};
 
 #[derive(Debug)]
-pub struct StatusParentDir {
-  pub path: String,
-  pub status: Vec<Status>,
+pub struct StatusError {
+  error: String,
 }
 
+#[derive(Debug)]
+pub struct Statuses {
+  statuses: Vec<Status>,
+}
 #[derive(Debug)]
 pub struct Status {
   pub directory: Dir,
-  pub status: Result<String, String>,
+  pub status: Result<Vec<String>, String>,
 }
 
-impl StatusParentDir {
-  pub fn build(arg: &str) -> StatusParentDir {
-    let path = arg.to_owned();
-    let child_directories = get_child_directories(&path).unwrap();
-    let mut status: Vec<Status> = Vec::new();
-    for dir in child_directories {
-      status.push(Status {
-        status: get_status(&dir.1),
-        directory: Dir {
-          name: dir.0,
-          path: dir.1,
-        },
-      });
-    }
+pub fn run_status(repos: Repos, verbose: bool) {
+  let status = get_status(repos, verbose).unwrap();
+  // dbg!(status);
+  status.print(verbose);
+}
 
-    status.sort_by_key(|item| match item.status {
-      Ok(_) => 0,
-      Err(_) => 1,
-    });
-
-    StatusParentDir { path, status }
-  }
-
-  pub fn printing(self: &Self) {
+impl Statuses {
+  pub fn print(&self, verbose: bool) {
     println!("");
-    for status in &self.status {
+    for status in &self.statuses {
       match &status.status {
         Ok(r) => {
           println!("{}: {}", status.directory.name, " ".red());
-          for line in r.lines() {
-            println!("  {}", line);
+          if verbose {
+            let output = r[0].split("\n");
+            for line in output {
+              println!("  {}", line);
+            }
+          } else {
+            for line in r {
+              println!("  {}", line);
+            }
           }
           println!("");
         }
@@ -52,75 +48,67 @@ impl StatusParentDir {
           println!("{}: {}", status.directory.name, " ".green());
           println!("");
         }
+      };
+    }
+  }
+}
+
+pub fn get_status(repos: Repos, verbose: bool) -> Result<Statuses, StatusError> {
+  let mut statuses: Vec<Status> = Vec::new();
+  for dir in repos.repos {
+    let status = Command::new("git")
+      .arg("status")
+      .current_dir(&dir.path)
+      .output()
+      .map_err(|e| StatusError {
+        error: e.to_string(),
+      })?;
+
+    let status_output = String::from_utf8_lossy(&status.stdout).to_string();
+    let mut ok_vec: Vec<String> = Vec::new();
+    let status: Result<Vec<String>, String>;
+    if !status_output.contains("up to date") {
+      if verbose {
+        ok_vec.push(status_output.clone());
+      } else {
+        ok_vec.push("Local repository is not synchronized with the remote repository.".to_string());
       }
     }
-  }
-}
-
-fn get_child_directories(parent_path: &str) -> Result<HashMap<String, String>, Error> {
-  let child_directories = Command::new("ls")
-    .current_dir(parent_path)
-    .output()
-    .unwrap();
-
-  let child_directories = String::from_utf8_lossy(&child_directories.stdout);
-
-  let mut result: HashMap<String, String> = HashMap::new();
-
-  for dir in child_directories.lines() {
-    let repo = format!("{}{}", parent_path, dir);
-    if check_repo(&repo) {
-      result.insert(dir.to_string(), repo.to_string());
+    if status_output.contains("modified") {
+      if verbose {
+        ok_vec.push(status_output.clone());
+      } else {
+        ok_vec.push("You have uncommited changes in your local repository.".to_string());
+      }
     }
+    if status_output.contains("untracked") {
+      if verbose {
+        ok_vec.push(status_output.clone());
+      } else {
+        ok_vec.push("You have untracked files in your repository.".to_string());
+      }
+    }
+
+    if ok_vec.is_empty() {
+      if verbose {
+        status = Err(status_output);
+      } else {
+        status = Err("The repository is clean".to_string());
+      }
+    } else {
+      status = Ok(ok_vec);
+    }
+
+    statuses.push(Status {
+      directory: dir,
+      status,
+    });
   }
 
-  Ok(result)
-}
+  statuses.sort_by_key(|item| match item.status {
+    Ok(_) => 0,
+    Err(_) => 1,
+  });
 
-fn check_repo(dir: &str) -> bool {
-  let dir = format!("{}/.git", dir);
-  if PathBuf::from(&dir).is_dir() {
-    true
-  } else {
-    false
-  }
-}
-
-fn get_status(dir: &str) -> Result<String, String> {
-  let dir = Command::new("git")
-    .arg("status")
-    .current_dir(dir)
-    .output()
-    .unwrap();
-  assert!(dir.status.success());
-  let content = String::from_utf8_lossy(&dir.stdout).to_string();
-
-  match check_status(&content) {
-    Ok(r) => return Ok(r),
-    Err(e) => return Err(e),
-  };
-}
-
-fn check_status<'a>(contents: &'a str) -> Result<String, String> {
-  let mut results = Vec::new();
-
-  if !contents.contains("up to date") {
-    results.push("Local repository is not synchronized with the remote repository.\n".to_string());
-  }
-  if contents.contains("modified") {
-    results.push("You have uncommited changes in your local repository.\n".to_string());
-  }
-  if contents.contains("untracked") || contents.contains("new file") {
-    results.push("You have untracked files in your repository.\n".to_string())
-  }
-  if results.is_empty() {
-    return Err("The repository is clean!".to_string());
-  }
-
-  let mut lines = String::new();
-  for line in results {
-    lines += &line;
-  }
-
-  Ok(lines)
+  Ok(Statuses { statuses })
 }

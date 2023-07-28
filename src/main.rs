@@ -1,15 +1,25 @@
-use std::process;
+mod cli;
+mod fetch;
+mod repos;
+mod status;
 
-use rigit::{run_requested_command, Args};
+use clap::Parser;
+use cli::{Cli, Command};
+use fetch::run_fetch;
+use repos::Repos;
+use status::run_status;
 
 fn main() {
-  let args: Args = Args::parse_args().unwrap_or_else(|err| {
-    eprintln!("Problem parsing arguments: {err}");
-    process::exit(1);
-  });
+  let args = Cli::parse();
 
-  if let Err(e) = run_requested_command(&args) {
-    eprintln!("Application error: {e}");
-    process::exit(1);
-  };
+  match args.command {
+    Command::Status { path, verbose } => {
+      let repos = Repos::get_repos(path).unwrap();
+      run_status(repos, verbose);
+    }
+    Command::Fetch { path } => {
+      let repos = Repos::get_repos(path).unwrap();
+      run_fetch(repos);
+    }
+  }
 }
