@@ -18,8 +18,9 @@ impl Fetched {
     if self.fetched.is_empty() {
       println!("Nothing to fetch.")
     } else {
+      println!("Remote changes fetched for:\n");
       for fetched in &self.fetched {
-        println!("Remote changes fetched for: {}", fetched.name);
+        println!("  - {}", fetched.name);
       }
     }
   }
@@ -42,7 +43,7 @@ pub fn execute_fetch(repos: Repos) -> Result<Fetched, FetchError> {
         error: e.to_string(),
       })?;
 
-    let fetched = String::from_utf8_lossy(&fetched.stdout).to_string();
+    let fetched = String::from_utf8_lossy(&fetched.stderr).to_string();
     if !fetched.is_empty() {
       result.push(dir);
     }
