@@ -6,10 +6,10 @@ Tool which let's you perform a git actions on multiple repositories.
 - -V --version: displays the current release version
 - status: displays the status of all repositories under the specified directory
   - allows -v --verbose flag to display complete git status
-
-## WIP
 - fetch: pull the remote changes of all repositories under the specified directory but don't merge/rebase automatically.
 
-## Planned features
+## WIP
 - pull: pull the remote changes of all repositories under the specified directory and merge/rebase them.
+
+## Planned features
 - push: push the local changes of all repositories under the specified directory to the remote repositories.
