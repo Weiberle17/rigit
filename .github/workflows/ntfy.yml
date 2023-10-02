@@ -15,7 +15,7 @@ jobs:
         run: |
           curl \
           -u ${{ secrets.NTFY_CRED }} \
-          -H "Title: $TITLE" \
+          -H "Title: Rigit compiled successfully" \
           -H "Content-Type: text/plain" \
           -d $'Repo: ${{ github.repository }}\nCommit: ${{ github.sha }}\nRef: ${{ github.ref }}\nStatus: ${{ github.event.workflow_run.conclusion }}' \
           ${{ secrets.NTFY_URL }}
@@ -27,7 +27,7 @@ jobs:
         run: |
           curl \
           -u ${{ secrets.NTFY_CRED }} \
-          -H "Title: $TITLE" \
+          -H "Title: Rigit Compilation failed" \
           -H "Content-Type: text/plain" \
           -d $'Repo: ${{ github.repository }}\nCommit: ${{ github.sha }}\nRef: ${{ github.ref }}\nStatus: ${{ github.event.workflow_run.conclusion }}' \
           ${{ secrets.NTFY_URL }}
