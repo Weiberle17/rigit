@@ -1,0 +1,39 @@
+name: Ntfy-Notification
+
+on:
+  workflow_run:
+    workflows: [Build Rust project, Test Rust project]
+    types:
+      - completed
+
+env:
+  if: ${{ github.event.workflow_run.name == 'Build Rust project' }}
+  TITLE: rigit compiled successfully
+  if: ${{ github.event.workflow_run.name == 'Test Rust project' }}
+  TITLE: rigit tested successfully
+      
+jobs:
+  on-success:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Successfull message
+        run: |
+          curl \
+          -u ${{ secrets.NTFY_CRED }} \
+          -H "Title: $TITLE" \
+          -H "Content-Type: text/plain" \
+          -d $'Repo: ${{ github.repository }}\nCommit: ${{ github.sha }}\nRef: ${{ github.ref }}\nStatus: ${{ github.event.workflow_run.conclusion }}' \
+          ${{ secrets.NTFY_URL }}
+  on-failure:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    steps:
+      - name: Failed message
+        run: |
+          curl \
+          -u ${{ secrets.NTFY_CRED }} \
+          -H "Title: $TITLE" \
+          -H "Content-Type: text/plain" \
+          -d $'Repo: ${{ github.repository }}\nCommit: ${{ github.sha }}\nRef: ${{ github.ref }}\nStatus: ${{ github.event.workflow_run.conclusion }}' \
+          ${{ secrets.NTFY_URL }}

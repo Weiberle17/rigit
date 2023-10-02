@@ -1,0 +1,23 @@
+name: Build Rust project
+
+on:
+  push:
+    tags:
+      - 'v*.*'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Git repository
+        uses: actions/checkout@v3
+      - name: Compile Rust project
+        run: cargo build --release --verbose
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+          generateReleaseNotes: true
+          artifacts: "target/release/rigit, LICENSE"
