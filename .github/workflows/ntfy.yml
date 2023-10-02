@@ -2,16 +2,10 @@ name: Ntfy-Notification
 
 on:
   workflow_run:
-    workflows: [Build Rust project, Test Rust project]
+    workflows: [Build Rust project]
     types:
       - completed
 
-env:
-  if: ${{ github.event.workflow_run.name == 'Build Rust project' }}
-  TITLE: rigit compiled successfully
-  if: ${{ github.event.workflow_run.name == 'Test Rust project' }}
-  TITLE: rigit tested successfully
-      
 jobs:
   on-success:
     runs-on: ubuntu-latest
