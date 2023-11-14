@@ -1,3 +1,8 @@
+//!
+//! # rigit
+//!
+//! A CLI tool which let's you perform a git action on multiple repositories in one directory
+
 mod cli;
 mod fetch;
 mod repos;

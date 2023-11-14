@@ -1,19 +1,26 @@
-use std::process::Command;
+//!
+//! # Fetch argument
+//!
+//! This module handles the fetch functionality
 
 use crate::repos::{Dir, Repos};
+use std::process::Command;
 
+/// Custom Error if fetching fails
 #[derive(Debug)]
-pub struct FetchError {
+struct FetchError {
   error: String,
 }
 
+/// Type to handle results of fetch commands
 #[derive(Debug)]
-pub struct Fetched {
+struct Fetched {
   fetched: Vec<Dir>,
 }
 
 impl Fetched {
-  pub fn print(&self) {
+  /// Print function to display results clearly
+  fn print(&self) {
     println!("");
     if self.fetched.is_empty() {
       println!("Nothing to fetch.")
@@ -26,13 +33,15 @@ impl Fetched {
   }
 }
 
+/// Expose this module to be used in main.rs
 pub fn run_fetch(repos: Repos) {
   let fetched = execute_fetch(repos).unwrap();
   // dbg!(fetched);
   fetched.print();
 }
 
-pub fn execute_fetch(repos: Repos) -> Result<Fetched, FetchError> {
+/// Function to run fetch command and return results
+fn execute_fetch(repos: Repos) -> Result<Fetched, FetchError> {
   let mut result: Vec<Dir> = Vec::new();
   for dir in repos.repos {
     let fetched = Command::new("git")

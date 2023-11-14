@@ -1,24 +1,32 @@
+//!
+//! # Status argument
+//!
+//! This module handles the status functionality
+
 use std::process::Command;
-
 use colored::Colorize;
-
 use crate::repos::{Dir, Repos};
 
+/// Custom Error if getting the status fails
 #[derive(Debug)]
 pub struct StatusError {
   error: String,
 }
 
+/// Type to handle results of status commands
 #[derive(Debug)]
 pub struct Statuses {
   statuses: Vec<Status>,
 }
+
+/// Type to handle result of one status
 #[derive(Debug)]
 pub struct Status {
   pub directory: Dir,
   pub status: Result<Vec<String>, String>,
 }
 
+/// Expose this module to be used in main.rs
 pub fn run_status(repos: Repos, verbose: bool) {
   let status = get_status(repos, verbose).unwrap();
   // dbg!(status);
@@ -26,7 +34,8 @@ pub fn run_status(repos: Repos, verbose: bool) {
 }
 
 impl Statuses {
-  pub fn print(&self, verbose: bool) {
+  /// Print function to display results clearly
+  fn print(&self, verbose: bool) {
     println!("");
     for status in &self.statuses {
       match &status.status {
@@ -53,7 +62,8 @@ impl Statuses {
   }
 }
 
-pub fn get_status(repos: Repos, verbose: bool) -> Result<Statuses, StatusError> {
+/// Function to run status command and return results
+fn get_status(repos: Repos, verbose: bool) -> Result<Statuses, StatusError> {
   let mut statuses: Vec<Status> = Vec::new();
   for dir in repos.repos {
     let status = Command::new("git")
